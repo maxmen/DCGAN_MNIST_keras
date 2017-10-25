@@ -129,7 +129,7 @@ class GAN(object):
 				y_generator = [1]*batch_size
 				self.D.trainable = False
 				AD_loss=self.AD.train_on_batch(noise_input, y_generator)
-				print("batch %d AD_loss : %f" % (j, AD_loss))
+				print("batch %d AD_loss : %f %f" % (j, AD_loss[0], AD_loss[1]))
 				if j % 10 == 9:
 					self.G.save_weights('generator_weights', True)
 					self.D.save_weights('discriminator_weights', True)
