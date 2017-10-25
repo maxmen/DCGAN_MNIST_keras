@@ -32,8 +32,8 @@ class GAN(object):
 		ishape=(28,28,3),ch=3,momentum=0.9,lrelu=0.2):
 		self.G=self.generator(input_dim=input_dim,dim=dim,depth=depth_gen,dropout=dropout_gen,ch=ch,momentum=momentum,lrelu=lrelu)
 		self.D=self.discriminator(depth=depth_disc,dropout=dropout_disc,ishape=ishape)
-		self.G.compile(loss='binary_crossentropy', optimizer=Adam())
-		self.D.compile(loss='binary_crossentropy', optimizer=Adam())
+		self.G.compile(loss='binary_crossentropy', optimizer=Adam(lr=1e-5, beta_1=0.1))
+		self.D.compile(loss='binary_crossentropy', optimizer=Adam(lr=1e-5, beta_1=0.1))
 		self.AD=self.adversarial()
 
 	def generator(self,input_dim=100,dim=7,depth=128,dropout=0.4,ch=3,momentum=0.9,lrelu=0.2):
@@ -59,7 +59,7 @@ class GAN(object):
 		# output layer (1,4*dim,4*dim,ch)
 		G.add(Conv2DTranspose(ch, 5, padding='same'))
 		G.add(Activation('tanh'))
-		G.summary()
+		#G.summary()
 		return(G)
 
 	def discriminator(self,depth=64,dropout=0.4,ishape=(28,28,3)):
@@ -83,11 +83,12 @@ class GAN(object):
 		D.add(Flatten())
 		D.add(Dense(1))
 		D.add(Activation('tanh'))
-		D.summary()
+		#D.summary()
 		return (D)
 
 	def adversarial(self):
-		optimizer = RMSprop(lr=0.0001, decay=3e-8)
+		#optimizer = RMSprop(lr=0.0001, decay=3e-8)
+		optimizer = Adam(lr=2e-4, beta_1=0.5)
 		AD = Sequential()
 		AD.add(self.G)
 		AD.add(self.D)
@@ -110,6 +111,8 @@ class GAN(object):
 
 	def train(self,Xtrain,Ytrain,batch_size=128,epoch=50):
 		batch_count = Xtrain.shape[0] // batch_size
+		dloss=[]
+		gloss=[]
 		for i in range(epoch):
 			for j in tqdm(range(batch_count)):
 				#noise_input = np.random.rand(batch_size, 100)
@@ -124,16 +127,18 @@ class GAN(object):
 				y_discriminator = [0]*batch_size + [1]*batch_size
 				self.D.trainable = True
 				D_loss=self.D.train_on_batch(X, y_discriminator)
-				print("batch %d D_loss : %f" % (j, D_loss))
+				dloss.append(D_loss)
+				#print("batch %d D_loss : %f" % (j, D_loss))
 				noise_input = np.random.rand(batch_size, 100)
 				y_generator = [1]*batch_size
 				self.D.trainable = False
 				AD_loss=self.AD.train_on_batch(noise_input, y_generator)
-				print("batch %d AD_loss : %f %f" % (j, AD_loss[0], AD_loss[1]))
+				#print("batch %d AD_loss : %f %f" % (j, AD_loss[0], AD_loss[1]))
+				gloss.append(AD_loss[0])
 				if j % 10 == 9:
 					self.G.save_weights('generator_weights', True)
 					self.D.save_weights('discriminator_weights', True)
-
+		return(dloss,gloss)
 
 
 if __name__ == "__main__":
@@ -146,4 +151,10 @@ if __name__ == "__main__":
 
 	GAN=GAN(ch=1,ishape=(28,28,1))
 	GAN.pre_train_discriminator(Xtrain,Ytrain,epoch=1)
-	GAN.train(Xtrain,Ytrain)
+	dloss,gloss=GAN.train(Xtrain,Ytrain)
+
+	steps=np.linspace(0,len(dloss)-1,len(dloss))
+	fig,ax=plt.subplots(1,1,figsize=(10,10))
+	ax.plot(steps,dloss,'-')
+	ax.plot(steps,gloss,':')
+	fig.savefig('loss.png')
