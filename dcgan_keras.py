@@ -155,7 +155,7 @@ steps=np.linspace(0,len(loss),len(loss))
 
 plt.plot(steps,loss)
 
- def plot_output():
+def plot_output():
     try_input = np.random.rand(100, 100)
     preds = G.predict(try_input)
 
