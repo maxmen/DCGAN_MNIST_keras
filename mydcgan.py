@@ -91,12 +91,12 @@ class GAN(object):
 
 	def discriminator(self,depth=64,dropout=0.3,ishape=(28,28,3)):
 		D = Sequential()
-		D.add(Conv2D(depth, 5, subsample=(2,2), strides=2, input_shape=ishape,\
+		D.add(Conv2D(depth, 5, strides=2, input_shape=ishape,\
 			padding='same'))
 		D.add(LeakyReLU(alpha=0.2))
 		D.add(Dropout(dropout))
 		# 2nd layer: [14,14,128], out [28,28,256]
-		D.add(Conv2D(depth*2, 5, subsample=(2,2), strides=2, padding='same'))
+		D.add(Conv2D(depth*2, 5, strides=2, padding='same'))
 		D.add(LeakyReLU(alpha=0.2))
 		D.add(Dropout(dropout))
 		# 3rd layer
