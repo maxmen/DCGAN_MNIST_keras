@@ -2,7 +2,8 @@ from keras.datasets import mnist
 import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
-from keras.models import Sequential
+from keras.layers import Input
+from keras.models import Sequential, Model
 from keras.layers import Dense, Activation, Flatten, Reshape
 from keras.layers import Conv2D, Conv2DTranspose, UpSampling2D
 from keras.layers import LeakyReLU, Dropout
@@ -133,18 +134,24 @@ class GAN(object):
 		D.add(Dropout(dropout))
 		D.add(Flatten())
 		D.add(Dense(1))
-		D.add(Activation('tanh'))
+		D.add(Activation('sigmoid'))
 		#D.summary()
 		return (D)
 
 	def adversarial(self):
 		#optimizer = RMSprop(lr=0.0001, decay=3e-8)
 		optimizer = Adam(lr=2e-4, beta_1=0.5)
-		AD = Sequential()
-		AD.add(self.G)
-		AD.add(self.D)
+		ganInput = Input(shape=(100,))
+		x=self.G(ganInput)
+		ganOutput=self.D(x)
+		AD=Model(inputs=ganInput,outputs=ganOutput)
 		AD.compile(loss='binary_crossentropy', optimizer=optimizer,\
-            metrics=['accuracy'])
+         	  metrics=['accuracy'])
+		#AD = Sequential()
+		#AD.add(self.G)
+		#AD.add(self.D)
+		#AD.compile(loss='binary_crossentropy', optimizer=optimizer,\
+        #    metrics=['accuracy'])
 		return(AD)
 
 	def pre_train_discriminator(self,Xtrain,Ytrain,batch_size=128,epoch=1):
