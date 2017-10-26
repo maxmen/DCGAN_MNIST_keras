@@ -139,7 +139,7 @@ class GAN(object):
 		D.add(Dropout(dropout))
 		D.add(Flatten())
 		D.add(Dense(1))
-		D.add(Activation('sigmoid'))
+		D.add(Activation('tanh'))
 		#D.summary()
 		return (D)
 
