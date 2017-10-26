@@ -12,6 +12,7 @@ from keras.optimizers import Adam, RMSprop
 from PIL import Image
 import argparse
 import math
+import os.path
 
 def combine_images(generated_images):
     num = generated_images.shape[0]
@@ -40,6 +41,12 @@ class GAN(object):
 		self.D=self.discriminator(depth=depth_disc,dropout=dropout_disc,ishape=ishape)
 		self.G.compile(loss='binary_crossentropy', optimizer=Adam(lr=1e-5, beta_1=0.1))
 		self.D.compile(loss='binary_crossentropy', optimizer=Adam(lr=1e-5, beta_1=0.1))
+		if (os.path.exists('./generator_weights')):
+			print 'loading existing weights for the generator'
+			self.G.load_weights('generator_weights')
+		if (os.path.exists('./discriminator_weights')):
+			print 'loading existing weights for the discriminator'
+			self.D.load_weights('discriminator_weights')
 		self.AD=self.adversarial()
 
 	def generator(self,input_dim=100,dim=7,depth=128,dropout=0.4,ch=3,momentum=0.9,lrelu=0.2):
@@ -139,7 +146,7 @@ class GAN(object):
 		D.add(Dropout(dropout))
 		D.add(Flatten())
 		D.add(Dense(1))
-		D.add(Activation('tanh'))
+		D.add(Activation('sigmoid'))
 		#D.summary()
 		return (D)
 
@@ -216,8 +223,11 @@ if __name__ == "__main__":
 	Xtrain = Xtrain.astype('float32')
 
 	GAN=GAN(ch=1,ishape=(28,28,1))
-	GAN.pre_train_discriminator(Xtrain,Ytrain,epoch=1)
-	dloss,gloss=GAN.train(Xtrain,Ytrain,epoch=10)
+	if (os.path.exists('./discriminator_weights')):
+		print ('Skipping pre-training because the discriminator was trained already')
+	else:
+		GAN.pre_train_discriminator(Xtrain,Ytrain,epoch=1)
+	dloss,gloss=GAN.train(Xtrain,Ytrain,epoch=50)
 
 	steps=np.linspace(0,len(dloss)-1,len(dloss))
 	fig,ax=plt.subplots(1,1,figsize=(10,10))
