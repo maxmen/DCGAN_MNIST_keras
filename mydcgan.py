@@ -170,8 +170,8 @@ class GAN(object):
 
 	def make_trainable(net, val):
 		net.trainable = val
-			for l in net.layers:
-				l.trainable = val
+		for l in net.layers:
+			l.trainable = val
 
 	def train(self,Xtrain,Ytrain,batch_size=128,epoch=50):
 		batch_count = Xtrain.shape[0] // batch_size
