@@ -142,6 +142,7 @@ class GAN(object):
 		#optimizer = RMSprop(lr=0.0001, decay=3e-8)
 		optimizer = Adam(lr=2e-4, beta_1=0.5)
 		ganInput = Input(shape=(100,))
+		make_trainable(self.D, False)
 		x=self.G(ganInput)
 		ganOutput=self.D(x)
 		AD=Model(inputs=ganInput,outputs=ganOutput)
@@ -164,8 +165,13 @@ class GAN(object):
 				predictions = self.G.predict(noise_input, batch_size=batch_size)
 				X = np.concatenate([predictions, image_batch])
 				y_discriminator = [0]*batch_size + [1]*batch_size
-				self.D.trainable = True
+				make_trainable(self.D, True)
 				self.D.train_on_batch(X, y_discriminator)
+
+	def make_trainable(net, val):
+		net.trainable = val
+			for l in net.layers:
+				l.trainable = val
 
 	def train(self,Xtrain,Ytrain,batch_size=128,epoch=50):
 		batch_count = Xtrain.shape[0] // batch_size
@@ -183,13 +189,13 @@ class GAN(object):
 					Image.fromarray(image.astype(np.uint8)).save(str(i)+"_"+str(j)+".png")
 				X = np.concatenate([predictions, image_batch])
 				y_discriminator = [0]*batch_size + [1]*batch_size
-				self.D.trainable = True
+				make_trainable(self.D, True)
 				D_loss=self.D.train_on_batch(X, y_discriminator)
 				dloss.append(D_loss)
 				#print("batch %d D_loss : %f" % (j, D_loss))
 				noise_input = np.random.rand(batch_size, 100)
 				y_generator = [1]*batch_size
-				self.D.trainable = False
+				make_trainable(self.D, False)
 				AD_loss=self.AD.train_on_batch(noise_input, y_generator)
 				#print("batch %d AD_loss : %f %f" % (j, AD_loss[0], AD_loss[1]))
 				gloss.append(AD_loss[0])
