@@ -27,6 +27,11 @@ def combine_images(generated_images):
             img[:, :, 0]
     return image
 
+def make_trainable(net, val):
+	net.trainable = val
+	for l in net.layers:
+		l.trainable = val
+
 class GAN(object):
 
 	def __init__(self,input_dim=100,dim=7,depth_gen=128,depth_disc=64,dropout_gen=0.4,dropout_disc=0.4,\
@@ -168,10 +173,6 @@ class GAN(object):
 				make_trainable(self.D, True)
 				self.D.train_on_batch(X, y_discriminator)
 
-	def make_trainable(net, val):
-		net.trainable = val
-		for l in net.layers:
-			l.trainable = val
 
 	def train(self,Xtrain,Ytrain,batch_size=128,epoch=50):
 		batch_count = Xtrain.shape[0] // batch_size
