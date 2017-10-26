@@ -42,6 +42,33 @@ class GAN(object):
 		G.add(BatchNormalization())
 		G.add(Activation(LeakyReLU(lrelu)))
 		G.add(Reshape((dim, dim, depth)))
+		#G.add(Dropout(dropout))
+		G.add(UpSampling2D())
+		G.add(Conv2D(int(depth/2), 5, padding='same'))
+		G.add(BatchNormalization(momentum=momentum))
+		G.add(Activation(LeakyReLU(lrelu)))
+		G.add(UpSampling2D())
+		# 2nd convolutional layer: input [2*dim,2*dim,depth/2], output [4*dim, 4*dim, depth/4]
+		#G.add(Conv2DTranspose(int(depth/4), 5, padding='same'))
+		#G.add(BatchNormalization(momentum=momentum))
+		#G.add(Activation(LeakyReLU(lrelu)))
+		#G.add(UpSampling2D())
+		# 3rd convolutional layer: input [4*dim,4*dim,depth/4], output [4*dim, 4*dim, depth/8]
+		#G.add(Conv2DTranspose(int(depth/8), 5, padding='same'))
+		#G.add(BatchNormalization(momentum=0.9))
+		#G.add(Activation(LeakyReLU(0.2)))
+		# output layer (1,4*dim,4*dim,ch)
+		G.add(Conv2DTranspose(ch, 5, padding='same'))
+		G.add(Activation('tanh'))
+		#G.summary()
+		return(G)
+
+	def generator1(self,input_dim=100,dim=7,depth=128,dropout=0.4,ch=3,momentum=0.9,lrelu=0.2):
+		G=Sequential()
+		G.add(Dense(dim*dim*depth, input_dim=input_dim))
+		G.add(BatchNormalization())
+		G.add(Activation(LeakyReLU(lrelu)))
+		G.add(Reshape((dim, dim, depth)))
 		G.add(Dropout(dropout))
 		G.add(Conv2DTranspose(int(depth/2), 5, padding='same'))
 		G.add(BatchNormalization(momentum=momentum))
@@ -176,7 +203,7 @@ if __name__ == "__main__":
 
 	GAN=GAN(ch=1,ishape=(28,28,1))
 	GAN.pre_train_discriminator(Xtrain,Ytrain,epoch=1)
-	dloss,gloss=GAN.train(Xtrain,Ytrain)
+	dloss,gloss=GAN.train(Xtrain,Ytrain,epoch=10)
 
 	steps=np.linspace(0,len(dloss)-1,len(dloss))
 	fig,ax=plt.subplots(1,1,figsize=(10,10))
