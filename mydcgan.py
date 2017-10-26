@@ -62,7 +62,31 @@ class GAN(object):
 		#G.summary()
 		return(G)
 
-	def discriminator(self,depth=64,dropout=0.4,ishape=(28,28,3)):
+	def discriminator(self,depth=64,dropout=0.3,ishape=(28,28,3)):
+		D = Sequential()
+		D.add(Conv2D(depth, 5, subsample=(2,2), strides=2, input_shape=ishape,\
+			padding='same'))
+		D.add(LeakyReLU(alpha=0.2))
+		D.add(Dropout(dropout))
+		# 2nd layer: [14,14,128], out [28,28,256]
+		D.add(Conv2D(depth*2, 5, subsample=(2,2), strides=2, padding='same'))
+		D.add(LeakyReLU(alpha=0.2))
+		D.add(Dropout(dropout))
+		# 3rd layer
+		#D.add(Conv2D(depth*4, 5, strides=2, padding='same'))
+		#D.add(LeakyReLU(alpha=0.2))
+		#D.add(Dropout(dropout))
+		## 4th layer
+		#D.add(Conv2D(depth*8, 5, strides=1, padding='same'))
+		#D.add(LeakyReLU(alpha=0.2))
+		#D.add(Dropout(dropout))
+		D.add(Flatten())
+		D.add(Dense(1))
+		D.add(Activation('tanh'))
+		#D.summary()
+		return (D)
+
+	def discriminator1(self,depth=64,dropout=0.4,ishape=(28,28,3)):
 		D = Sequential()
 		D.add(Conv2D(depth, 5, strides=2, input_shape=ishape,\
 			padding='same'))
@@ -142,6 +166,7 @@ class GAN(object):
 
 
 if __name__ == "__main__":
+
 	(Xtrain, Ytrain), (Xtest, Ytest) = mnist.load_data()
 	Xtrain = (Xtrain - 127.5) / 127.5
 	Xtest = (Xtest - 127.5) / 127.5
