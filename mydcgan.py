@@ -200,7 +200,7 @@ class GAN(object):
 
 
 if __name__ == "__main__":
-
+	ioff()
 	(Xtrain, Ytrain), (Xtest, Ytest) = mnist.load_data()
 	Xtrain = (Xtrain - 127.5) / 127.5
 	Xtest = (Xtest - 127.5) / 127.5
