@@ -154,7 +154,7 @@ class GAN(object):
 		#optimizer = RMSprop(lr=0.0001, decay=3e-8)
 		optimizer = Adam(lr=2e-4, beta_1=0.5)
 		ganInput = Input(shape=(100,))
-		#make_trainable(self.D, False)
+		make_trainable(self.D, False)
 		x=self.G(ganInput)
 		ganOutput=self.D(x)
 		AD=Model(inputs=ganInput,outputs=ganOutput)
