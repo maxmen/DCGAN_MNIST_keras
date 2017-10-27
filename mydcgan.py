@@ -203,7 +203,7 @@ class GAN(object):
 				#print("batch %d D_loss : %f" % (j, D_loss))
 				noise_input = np.random.rand(batch_size, 100)
 				y_generator = [1]*batch_size
-				#make_trainable(self.D, False)
+				make_trainable(self.D, False)
 				AD_loss=self.AD.train_on_batch(noise_input, y_generator)
 				self.AD.summary()
 				#print("batch %d AD_loss : %f %f" % (j, AD_loss[0], AD_loss[1]))
