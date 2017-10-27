@@ -197,13 +197,15 @@ class GAN(object):
 					Image.fromarray(image.astype(np.uint8)).save(str(i)+"_"+str(j)+".png")
 				X = np.concatenate([predictions, image_batch])
 				y_discriminator = [0]*batch_size + [1]*batch_size
-				make_trainable(self.D, True)
+				#make_trainable(self.D, True)
+				self.D.trainable=True
 				D_loss=self.D.train_on_batch(X, y_discriminator)
 				dloss.append(D_loss)
 				#print("batch %d D_loss : %f" % (j, D_loss))
-				noise_input = np.random.rand(batch_size, 100)
+				noise_input = np.random.uniform(-1, 1, size=(batch_size, 100))
 				y_generator = [1]*batch_size
-				make_trainable(self.D, False)
+				self.D.trainable=False
+				#make_trainable(self.D, False)
 				AD_loss=self.AD.train_on_batch(noise_input, y_generator)
 				self.AD.summary()
 				#print("batch %d AD_loss : %f %f" % (j, AD_loss[0], AD_loss[1]))
