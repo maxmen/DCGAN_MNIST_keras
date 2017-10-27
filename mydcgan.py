@@ -13,6 +13,7 @@ from PIL import Image
 import argparse
 import math
 import os.path
+import os
 
 def combine_images(generated_images):
     num = generated_images.shape[0]
@@ -49,7 +50,7 @@ class GAN(object):
 			self.D.load_weights('discriminator_weights')
 		self.AD=self.adversarial()
 
-	def generator1(self,input_dim=100,dim=7,depth=128,dropout=0.4,ch=3,momentum=0.9,lrelu=0.2):
+	def generator(self,input_dim=100,dim=7,depth=128,dropout=0.4,ch=3,momentum=0.9,lrelu=0.2):
 		G=Sequential()
 		G.add(Dense(dim*dim*depth, input_dim=input_dim))
 		G.add(BatchNormalization())
@@ -71,12 +72,12 @@ class GAN(object):
 		#G.add(BatchNormalization(momentum=0.9))
 		#G.add(Activation(LeakyReLU(0.2)))
 		# output layer (1,4*dim,4*dim,ch)
-		G.add(Conv2DTranspose(ch, 5, padding='same'))
+		G.add(Conv2D(ch, 5, padding='same'))
 		G.add(Activation('tanh'))
 		#G.summary()
 		return(G)
 
-	def generator(self,input_dim=100,dim=7,depth=128,dropout=0.4,ch=3,momentum=0.9,lrelu=0.2):
+	def generator1(self,input_dim=100,dim=7,depth=128,dropout=0.4,ch=3,momentum=0.9,lrelu=0.2):
 		G=Sequential()
 		G.add(Dense(dim*dim*depth, input_dim=input_dim))
 		G.add(BatchNormalization())
@@ -154,7 +155,7 @@ class GAN(object):
 		#optimizer = RMSprop(lr=0.0001, decay=3e-8)
 		optimizer = Adam(lr=2e-4, beta_1=0.5)
 		ganInput = Input(shape=(100,))
-		#make_trainable(self.D, False)
+		make_trainable(self.D, False)
 		x=self.G(ganInput)
 		ganOutput=self.D(x)
 		AD=Model(inputs=ganInput,outputs=ganOutput)
@@ -217,6 +218,9 @@ class GAN(object):
 
 
 if __name__ == "__main__":
+
+	os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
+
 	plt.ioff()
 	(Xtrain, Ytrain), (Xtest, Ytest) = mnist.load_data()
 	Xtrain = (Xtrain - 127.5) / 127.5
