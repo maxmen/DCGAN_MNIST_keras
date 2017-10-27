@@ -75,6 +75,7 @@ class GAN(object):
 		G.add(Conv2D(ch, 5, padding='same'))
 		G.add(Activation('tanh'))
 		#G.summary()
+		
 		return(G)
 
 	def generator1(self,input_dim=100,dim=7,depth=128,dropout=0.4,ch=3,momentum=0.9,lrelu=0.2):
