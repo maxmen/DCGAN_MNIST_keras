@@ -49,7 +49,7 @@ class GAN(object):
 			self.D.load_weights('discriminator_weights')
 		self.AD=self.adversarial()
 
-	def generator(self,input_dim=100,dim=7,depth=128,dropout=0.4,ch=3,momentum=0.9,lrelu=0.2):
+	def generator1(self,input_dim=100,dim=7,depth=128,dropout=0.4,ch=3,momentum=0.9,lrelu=0.2):
 		G=Sequential()
 		G.add(Dense(dim*dim*depth, input_dim=input_dim))
 		G.add(BatchNormalization())
@@ -76,7 +76,7 @@ class GAN(object):
 		#G.summary()
 		return(G)
 
-	def generator1(self,input_dim=100,dim=7,depth=128,dropout=0.4,ch=3,momentum=0.9,lrelu=0.2):
+	def generator(self,input_dim=100,dim=7,depth=128,dropout=0.4,ch=3,momentum=0.9,lrelu=0.2):
 		G=Sequential()
 		G.add(Dense(dim*dim*depth, input_dim=input_dim))
 		G.add(BatchNormalization())
